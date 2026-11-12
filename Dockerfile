@@ -1,12 +1,14 @@
-FROM gcc:latest
+FROM gcc:13
 
 WORKDIR /app
 
-# Copia os arquivos necessários para dentro do container
-COPY cv_openmp.c dados.txt ./
+COPY cv_openmp.c .
+COPY gerar_dados.py .
 
-# Compila o código
-RUN gcc -O2 -fopenmp cv_openmp.c -o cv_openmp -lm
+# Gera os dados e compila
+RUN python3 gerar_dados.py && \
+    gcc -O2 -fopenmp cv_openmp.c -o cv_openmp -lm
 
-# Comando padrão ao rodar o container
+# Padrão: threads automático, 20000 repetições
 CMD ["./cv_openmp", "dados.txt"]
+# Para benchmark com threads específico:  docker run --rm cv-openmp ./cv_openmp dados.txt 4 20000
